@@ -22,7 +22,7 @@ The project focuses on three engineering problems that come up in any production
 
 ## Demo
 
-![App demo](media/app_demp.gif)
+![App demo](media/app_demo.gif)
 
 ---
 
@@ -179,10 +179,10 @@ npm run dev
 
 ---
 
-## Known Limitations
+## Current Scope & Deployment Notes
 
-- **Ephemeral database** — SQLite runs in-memory (`sqlite:///:memory:`). All data resets on server restart. This is intentional for demo reproducibility; switching to file-based or hosted Postgres requires changing one line in `db.py`.
-- **No authentication** — suitable for local/demo use only.
-- **CORS wildcard** — `allow_origins=["*"]` is fine for local development; restrict in production.
-- **API cost** — `gpt-4o-mini` costs approximately $0.002 per review. A production deployment would need rate limiting and cost caps per user.
-- **Two sample patents** — the seed data includes two hardcoded patents. Adding more documents requires inserting rows into the `Document` and `DocumentVersion` tables on startup.
+- **Ephemeral database -** SQLite runs in-memory for demo reproducibility: the database resets on server restart, which keeps the demo state predictable. Switching to a persistent store requires changing one line in `db.py` to a file-based or hosted Postgres connection string.
+- **No authentication -** suitable for local and demo use. A production deployment would add an auth layer in front of the FastAPI routes.
+- **CORS wildcard —** `allow_origins=["*"]` is appropriate for local development; restrict to specific origins before deploying.
+- **API cost —** `gpt-4o-mini` costs approximately $0.002 per review pass. A production deployment would add per-user rate limiting and cost caps.
+- **Two sample patents —** the seed data includes two hardcoded patents to keep the demo self-contained. Additional documents can be added by inserting rows into the Document and DocumentVersion tables at startup.
