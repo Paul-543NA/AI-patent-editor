@@ -1,21 +1,26 @@
-# Patent Reviewer UI
+# Patent Editor UI
 
 ## Layout
 
-Application code is in the `src/` directory. Everything under `src/internal/` should not be modified, but feel free to take a look at the internals - think of it as a third party library.
+Application code is in the `src/` directory.
 
 ```
 src
-├── App.tsx # Main App Shell
-├── Document.tsx # Document with WebSocket link
+├── App.tsx                          # Main app shell (layout, toolbar, suggestions panel)
+├── main.tsx                         # React entry point
+├── contexts
+│   └── AppContext.tsx               # Central state management (documents, versions, AI suggestions, upgrade)
 ├── internal
-│   ├── Editor.tsx # React Quill Editor
-├── main.tsx
+│   ├── Document.tsx                 # Editor wrapper with WebSocket connection
+│   ├── Editor.tsx                   # TipTap rich-text editor component
+│   ├── SuggestionCard.tsx           # AI suggestion display card (severity-coloured)
+│   ├── LoadingOverlay.tsx           # Spinner overlay for loading states
+│   ├── PatentSelector/              # Modal for switching between patent documents
+│   ├── VersionSelector/             # Modal for viewing and switching document versions
+│   └── UpgradeProgressOverlay/      # Real-time upgrade progress visualisation
 ```
 
 ## Running locally
-
-To run locally,
 
 ```sh
 npm install

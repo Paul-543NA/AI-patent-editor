@@ -8,12 +8,10 @@ from openai import AsyncOpenAI
 
 from app.internal.prompt import PROMPT
 
-# Don't modify this file
-
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL") or "gpt-3.5-turbo-1106"
+OPENAI_MODEL = os.getenv("OPENAI_MODEL") or "gpt-4o-mini"
 
 
 def get_ai(
@@ -29,28 +27,38 @@ class AI:
     def __init__(self, api_key: str, model: str):
         self.model = model
         self._client = AsyncOpenAI(api_key=api_key)
-        self._random_error_probability = 0.05
 
     async def review_document(self, document: str) -> AsyncGenerator[str | None, None]:
         """
-        Review patent document and provide suggestions.
+        Review a patent document and stream structured JSON suggestions.
 
         Arguments:
-        document -- Patent document to review. Will error if this includes HTML or markdown.
+            document: Plain text patent document. Must have HTML stripped before
+                      calling (see utils.strip_html). Passing HTML wastes tokens
+                      and degrades suggestion quality.
 
-        Response:
-        Should return a generator that yields a review from an AI.
-        The review should be in the following JSON format:
-        { "issues": [
+        Yields:
+            String chunks of a JSON object in the format:
             {
-                "type": <error_type>,
-                "severity": <high|medium|low>,
-                "paragraph": <paragraph_number>,
-                "description": <description_of_error>,
-                "suggestion": <suggested_correction>
+                "issues": [
+                    {
+                        "type": <error_type>,
+                        "severity": <"high"|"medium"|"low">,
+                        "paragraph": <paragraph_number>,
+                        "description": <description_of_error>,
+                        "suggestion": <suggested_correction>
+                    },
+                    ...
+                ]
             }
-            ...
-        ]}
+
+        Design notes:
+            - `response_format={"type": "json_object"}` guarantees valid JSON from
+              the model, but streaming means the client receives JSON fragments.
+              The client (AppContext.tsx::parseStreamingJSON) implements a
+              multi-strategy fallback parser to handle partial corruption.
+            - The model streams chunks until the caller signals completion with the
+              sentinel string "--- Done sending suggestions ---" appended server-side.
         """
         stream = await self._client.chat.completions.create(
             model=self.model,

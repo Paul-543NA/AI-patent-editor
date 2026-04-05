@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   server:
-    container_name: EngineeringChallenge_Server
+    container_name: patent_editor_server
     build: ./server
     ports:
       - "8000:8000"
@@ -11,7 +11,7 @@ services:
       - ./server/.env
 
   client:
-    container_name: EngineeringChallenge_Client
+    container_name: patent_editor_client
     build: ./client
     ports:
       - "5173:5173"

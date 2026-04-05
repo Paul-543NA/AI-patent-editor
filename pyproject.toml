@@ -1,0 +1,26 @@
+[project]
+name = "ai-patent-editor"
+version = "0.1.0"
+description = "AI-powered patent claim editor with streaming LLM review and agentic improvement workflow"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.110.0",
+    "uvicorn==0.27.1",
+    "sqlalchemy==2.0.27",
+    "openai==1.13.3",
+    "python-dotenv==1.0.1",
+    "pydantic==2.11.9",
+    "websockets==12.0",
+    "httpx==0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["server/tests"]
+pythonpath = ["server"]

@@ -1,76 +1,108 @@
-import Document from "./Document";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import Document from "./internal/Document";
 import LoadingOverlay from "./internal/LoadingOverlay";
+import UpgradeProgressOverlay from "./internal/UpgradeProgressOverlay";
 import Logo from "./assets/logo.png";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import VersionSelector from "./internal/VersionSelector";
+import PatentSelector from "./internal/PatentSelector";
+import SuggestionCard from "./internal/SuggestionCard";
+import { AppContextProvider, useAppContext } from "./contexts/AppContext";
 
-
-const BACKEND_URL = "http://localhost:8000";
-
-function App() {
-  const [currentDocumentContent, setCurrentDocumentContent] =
-    useState<string>("");
-  const [currentDocumentId, setCurrentDocumentId] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Load the first patent on mount
-  useEffect(() => {
-    loadPatent(1);
-  }, []);
-
-  // Callback to load a patent from the backend
-  const loadPatent = async (documentNumber: number) => {
-    setIsLoading(true);
-    console.log("Loading patent:", documentNumber);
-    try {
-      const response = await axios.get(
-        `${BACKEND_URL}/document/${documentNumber}`
-      );
-      setCurrentDocumentContent(response.data.content);
-      setCurrentDocumentId(documentNumber);
-    } catch (error) {
-      console.error("Error loading document:", error);
-    }
-    setIsLoading(false);
-  };
-
-  // Callback to persist a patent in the DB
-  const savePatent = async (documentNumber: number) => {
-    setIsLoading(true);
-    try {
-      await axios.post(`${BACKEND_URL}/save/${documentNumber}`, {
-        content: currentDocumentContent,
-      });
-    } catch (error) {
-      console.error("Error saving document:", error);
-    }
-    setIsLoading(false);
-  };
+function AppContent() {
+  const {
+    currentDocumentId,
+    isLoading,
+    savePatent,
+    upgradeDocumentAutomatically,
+    suggestions,
+    removeSuggestion,
+    clearSuggestions,
+    isReceivingAiSuggestions,
+    upgradeUpdates,
+    isUpgrading,
+  } = useAppContext();
 
   return (
     <div className="flex flex-col h-full w-full">
-      {isLoading && <LoadingOverlay />}
+      {isLoading && !isUpgrading && <LoadingOverlay />}
+      {isUpgrading && <UpgradeProgressOverlay updates={upgradeUpdates} isVisible={isUpgrading} />}
       <header className="flex items-center justify-center top-0 w-full bg-black text-white text-center z-50 mb-[30px] h-[80px]">
         <img src={Logo} alt="Logo" style={{ height: "50px" }} />
       </header>
-      <div className="flex w-full bg-white h=[calc(100%-100px) gap-4 justify-center box-shadow">
-        <div className="flex flex-col h-full items-center gap-2 px-4">
-          <button onClick={() => loadPatent(1)}>Patent 1</button>
-          <button onClick={() => loadPatent(2)}>Patent 2</button>
-        </div>
-        <div className="flex flex-col h-full items-center gap-2 px-4 flex-1">
-          <h2 className="self-start text-[#213547] opacity-60 text-2xl font-semibold">{`Patent ${currentDocumentId}`}</h2>
-          <Document
-            onContentChange={setCurrentDocumentContent}
-            content={currentDocumentContent}
-          />
-        </div>
-        <div className="flex flex-col h-full items-center gap-2 px-4">
-          <button onClick={() => savePatent(currentDocumentId)}>Save</button>
+      <div className="flex w-full bg-white h=[calc(100%-100px) justify-center box-shadow ">
+        <div className="flex flex-col lg:flex-row w-full max-w-7xl gap-4">
+          <div className="flex flex-col h-full items-center gap-2 px-4 flex-1">
+            <div className="flex justify-between items-center w-full">
+              <PatentSelector />
+              <VersionSelector />
+            </div>
+            <Document />
+          </div>
+          <div className="flex flex-col h-full items-start gap-2 px-4 w-full lg:w-80">
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full">
+            <button 
+              onClick={() => savePatent(currentDocumentId)}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isLoading}
+            >
+              Save
+            </button>
+            <button 
+              onClick={upgradeDocumentAutomatically}
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              disabled={isLoading || isUpgrading}
+            >
+              {isUpgrading ? "Upgrading..." : "Upgrade text automatically"}
+            </button>
+          </div>
+          
+          {/* Suggestions Section */}
+          <div className="w-full mt-4">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-lg font-semibold text-[#213547]">AI Suggestions</h3>
+              {suggestions.length > 0 && (
+                <button
+                  onClick={clearSuggestions}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+            <div className="space-y-2">
+              {suggestions.length === 0 ? (
+                isReceivingAiSuggestions ? (
+                  <div className="flex items-center gap-2 text-sm text-blue-600">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent"></div>
+                    <span>AI is analyzing your text...</span>
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500 italic">
+                    Start typing to receive AI suggestions.
+                  </p>
+                )
+              ) : (
+                suggestions.map((suggestion, index) => (
+                  <SuggestionCard
+                    key={index}
+                    data={suggestion}
+                    onClose={() => removeSuggestion(index)}
+                  />
+                ))
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <AppContextProvider>
+      <AppContent />
+    </AppContextProvider>
   );
 }
 

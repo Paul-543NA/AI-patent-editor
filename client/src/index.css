@@ -46,6 +46,93 @@ button:hover {
   background-color: var(--hover-button-bg-color);
 }
 
+/* Link-style button for version selector */
+button.link-style {
+  margin: 0;
+  padding: 0;
+  min-width: auto;
+  background-color: transparent;
+  color: #2563eb; /* blue-600 */
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+button.link-style:hover {
+  background-color: transparent;
+  color: #1d4ed8; /* blue-800 */
+  text-decoration: underline;
+}
+
+button.link-style:focus {
+  outline: none;
+  text-decoration: underline;
+}
+
+button.link-style:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* Close button for suggestion cards */
+button.close-button {
+  margin: 0;
+  padding: 0;
+  min-width: auto;
+  background-color: transparent;
+  color: inherit;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+button.close-button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: inherit;
+}
+
+/* Header-style button for patent selector */
+button.header-style {
+  margin: 0;
+  padding: 0;
+  min-width: auto;
+  background-color: transparent;
+  color: var(--text-color);
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  text-decoration: none;
+  font-size: 1.5rem; /* text-2xl equivalent */
+  font-weight: 600; /* font-semibold */
+  opacity: 0.6;
+}
+
+button.header-style:hover:not(:disabled) {
+  background-color: transparent;
+  opacity: 0.8;
+}
+
+button.header-style:focus {
+  outline: none;
+  opacity: 0.8;
+}
+
+button.header-style:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Additional media query for light mode if needed */
 @media (prefers-color-scheme: light) {
   :root {
