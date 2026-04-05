@@ -20,13 +20,9 @@ The project focuses on three engineering problems that come up in any production
 
 ---
 
-## Screenshots
-
-![App screenshot](media/Screenshot%202026-04-05%20at%2018.10.32.png)
-
 ## Demo
 
-<video src="media/app_demp.mov" controls width="100%"></video>
+![App demo](media/app_demp.gif)
 
 ---
 
