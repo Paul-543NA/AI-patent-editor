@@ -22,7 +22,11 @@ The project focuses on three engineering problems that come up in any production
 
 ## Screenshots
 
-> *Add screenshots here — suggested: (1) editor with suggestions panel showing severity-coloured cards, (2) upgrade progress overlay mid-execution, (3) version selector modal.*
+![App screenshot](media/Screenshot%202026-04-05%20at%2018.10.32.png)
+
+## Demo
+
+<video src="media/app_demp.mov" controls width="100%"></video>
 
 ---
 
@@ -91,9 +95,6 @@ A single prompt that both identifies issues and rewrites all claims is prone to 
 
 **Temperature 0.2 for claim editing**
 Legal text requires consistency above creativity. A temperature of 0.2 keeps claim rewrites close to the original language while still allowing necessary corrections. The description generator uses 0.3 (slightly more creative since it generates new prose rather than editing existing claims). The reviewer uses the model's default temperature since suggestion variety is acceptable there.
-
-**Why LangGraph was evaluated and not used**
-The improvement loop was prototyped with LangGraph's `StateGraph`. The natural node decomposition (`ensure_description → extract_claims → get_suggestions → apply_improvements → reconstruct`) works, but all state transitions are sequential with no conditional branching or parallelism — the only conditional is "terminate early if suggestions is empty," which is trivially a `for` loop `break`. The graph abstraction added framework overhead without enabling anything the hand-rolled loop couldn't do. LangGraph becomes the right tool when there are multiple conditional edges from a single node, parallel branches, or complex state fan-in — none of which this workflow requires. See `simple_upgrade_workflow.py` for the implementation.
 
 **Claim-to-paragraph mapping**
 The review prompt instructs the model to identify the paragraph number of each issue. Patent claims are paragraphs, so numbers are 1:1 in well-structured documents. The mapping `max(1, min(suggestion.paragraph, len(claims)))` clamps out-of-range paragraph numbers rather than dropping the suggestion. This is an approximation — it works because the model's paragraph numbering tracks claim numbering closely when the document is well-structured, and the clamping prevents index errors on edge cases.

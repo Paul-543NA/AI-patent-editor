@@ -6,6 +6,9 @@ import VersionSelector from "./internal/VersionSelector";
 import PatentSelector from "./internal/PatentSelector";
 import SuggestionCard from "./internal/SuggestionCard";
 import { AppContextProvider, useAppContext } from "./contexts/AppContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function AppContent() {
   const {
@@ -100,9 +103,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AppContextProvider>
-      <AppContent />
-    </AppContextProvider>
+    <QueryClientProvider client={queryClient}>
+      <AppContextProvider>
+        <AppContent />
+      </AppContextProvider>
+    </QueryClientProvider>
   );
 }
 
